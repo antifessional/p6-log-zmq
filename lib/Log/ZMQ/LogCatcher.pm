@@ -9,13 +9,8 @@ use Net::ZMQ::Context:auth('github:gabrielash');
 use Net::ZMQ::Socket:auth('github:gabrielash');
 use Net::ZMQ::Message:auth('github:gabrielash');
 
-my %PROTOCOL = ('prefix' => -4, 'domain' => -3, 'level' => -2, 'format' => -1
-                , 'content' => 1, 'timestamp' => 2, 'target' => 3);
+use Log::ZMQ::Common;
 
-my %LEVELS = ( :critical(0) :error(1) :warning(2) :info(3) :debug(4) :trace(5) );
-my %ILVELS = zip(%LEVELS.values, %LEVELS.keys).flat;
-
-my $log-uri := "tcp://127.0.0.1:3999";
 
 class LogCatcher is export {
   has Str $.uri;
