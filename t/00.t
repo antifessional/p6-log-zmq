@@ -18,6 +18,6 @@ use-ok 'Log::ZMQ::LogCatcher.pm';
 use Log::ZMQ::LogCatcher;
 use Log::ZMQ::Logger;
 
-pass "why does it fail? " 
+pass "why does it fail? ";
 
 done-testing;

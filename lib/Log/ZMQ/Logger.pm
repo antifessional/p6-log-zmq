@@ -55,24 +55,29 @@ role json-format {
 my Logging $log-publisher;
 
 class Logging is export {
-  trusts Logger;
 
-  has Context $!ctx;
-  has Socket $!socket;
   has Str $.uri = $log-uri;
+  has Channel $!queue;
+  has Promise $!worker;
 
   our sub logging(Str $uri = $log-uri) is export {
-    $log-publisher := Logging.new(:$uri) unless $log-publisher.defined;
+    return $log-publisher if  $log-publisher.defined  &&  $log-publisher.uri eq $uri;
+    $log-publisher.DESTROY if $log-publisher.defined;
+    $log-publisher = Logging.new(:$uri);
     return $log-publisher;
   }
 
   method TWEAK()  {
-    $!ctx .= new;
-    $!socket .= new( $!ctx , :publisher );
-    $!socket.bind( $!uri );
+    $!queue .= new;
+    $!worker = start {
+      my Context $ctx .= new;
+      my Socket $socket .= new( $ctx , :publisher );
+      $socket.bind( $!uri );
+      .send($socket) for $!queue.list;
+      $socket.unbind.close;
+      $ctx.shutdown;
+    }
   }
-
-  method !socket() { return $!socket  }; 
 
   method logger(:$prefix!, :$debug) {
        return  Logger.new(
@@ -83,28 +88,33 @@ class Logging is export {
                         , :$prefix
                         , :%domains
                         , :$debug
+                        , :$!queue
                         , :logging(self)
                         );
 
   }
 
-  method DESTROY()  {
-    $!ctx.shutdown;
-    $!socket.unbind.close;
+  submethod DESTROY()  {
+    $!queue.close;
+    await $!worker;
   }
 
 }
 
 class Logger does yaml-format does zmq-format does json-format is export {
-  has Logging $.logging;
+  has Logging $.logging is required;
+  has Str $.prefix is required;
+  has Channel $.queue is required;
+
   has Str $.level = 'warning';
   has Str $.target = 'user';
   has Str $.format = 'yaml';
   has Str $.default-domain = 'none';
-  has Str $.prefix is required;
   has %.domains = %('none' => 1);
   has $.debug = False;
+
   has %!formats;
+
 
 
  method TWEAK {
@@ -179,8 +189,12 @@ class Logger does yaml-format does zmq-format does json-format is export {
     $builder = self.$m(:$builder, :$!prefix, :$timestamp
                                             , :$level, :$domain, :$!target, :$content );
 
-    $builder.finalize.send( $!logging!Logging::socket );
+    # say "SENT $builder";
+    $!queue.send($builder.finalize);
+    #$builder.finalize.send( $!logging!Logging::socket );
   }
 
 
 }
+
+END { $log-publisher.DESTROY if $log-publisher.defined; }
