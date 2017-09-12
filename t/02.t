@@ -30,7 +30,7 @@ $logger.format(:zmq);
 $logger2.format(:yaml);
 
 
-my $catcher = LogCatcher.new :debug;
+my $catcher = LogCatcher::instance(:debug);
 ok $catcher.subscribe(''), "subscribed ok";
 #$catcher.set-domains-filter( 'dom1', 'none' );
 $catcher.set-level-filter :trace;

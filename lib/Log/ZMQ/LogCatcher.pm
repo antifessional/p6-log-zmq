@@ -11,6 +11,11 @@ use Net::ZMQ::Message:auth('github:gabrielash');
 
 use Log::ZMQ::Common;
 
+class LogCatcher {...}
+
+my LogCatcher $instance;
+END { $instance.DESTROY if $instance.defined }
+
 
 class LogCatcher is export {
   has Str $.uri;
@@ -25,6 +30,12 @@ class LogCatcher is export {
   has @!zmq-handlers;
   has %!handlers;
 
+  our sub instance(Str $uri = $log-uri, :$debug) is export {
+    return $instance if  $instance.defined  &&  $instance.uri eq $uri;
+    $instance.DESTROY if $instance.defined;
+    $instance = LogCatcher.new(:$uri, :$debug);
+    return $instance;
+  }
 
   method TWEAK {
     $!uri = $log-uri unless $!uri.defined;
@@ -45,7 +56,7 @@ class LogCatcher is export {
     $content
     ___________________________________________________________________
     MSG_END
-    #: 
+    #:
   }
 
   method !default-handler(Str $content) {

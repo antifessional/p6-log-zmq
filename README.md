@@ -2,59 +2,61 @@
 
 ## SYNOPSIS
 
-Net::Jupyter is a Perl6 Jupyter kernel
+Log::ZMQ is a Perl6 Logger that used zeromq to log ober tcp/ip
 
 ## Introduction
 
+The looging is decoupled in a client server architecture. The client sends
+log meesages from the application to a LogCatcher that operates as a server,
+listening on a tcp port.
+
 #### Status
 
-This is in development. The only certainty is that the tests pass on my machine.  
+In development. This is my learning process of perl6 and ZMQ. I have a lot to learn so use with care.
+
 
 #### Alternatives
 
 #### Versions
 
 #### Portability
+  depends on my Net::ZMQ;
 
 ## Example Code
 
+#### A
+    my $l = Logging::logging.logger;
+    $l.log 'an important message';
+
+#### B
+    my $logger = Logging::logging('tcp://78.78.1.7')\
+                                .logger\
+                                .default-level( :warning )\
+                                .domains( < database engine front-end nativecall > )\
+                                .target( 'debug' )\
+                                .format(:json);
+
+  $logger.log( 'a very important message', :critical, :front-end );
+
+
 ## Documentation
 
-#### Net::Jupyter::Logging  (to be moved to separate rep)
+#### Log::ZMQ::Logging
 
-  The logging framework based on ZMQ. Usually a singleton summoned with 
+  The logging framework based on ZMQ. Usually a singleton summoned with
 
     my $log-system = Logging::logging;
-
-  but can also be initialized with a desired uri:
-
     my $log-system = Logging.new( 'tcp://127.127.8.17:8022' );
 
+    The default uri is 'tcp://127.0.0.1:3999'
+
   Methods
-    logger(:prefix)  ; returns a Logger 
-  
+    logger(:prefix)  ; returns a Logger
 
-#### Net::Jupyter::Logger  (to be moved to separate rep)
+#### Log::ZMQ::Logger
 
-A logger that logs to a ZMQ socket.
+The logger
 
-    Example 1 simple:
-      my $l = Logging::logging.logger;
-      $l.log 'an important message';
-
-    Example 2 less simple: 
-      my $logger = Logging::logging('tcp://78.78.1.7')\
-                                    .logger\
-                                    .default-level( :warning )\
-                                    .domains( < database engine front-end nativecall > )\
-                                    .target( 'debug' )\
-                                    .format(:json);
-
-      $logger.log( 'an important message' :critical :front-end );
-
-
-
-    
     Attributes
       prefix;   required
       level; (default level  = warning)
@@ -72,31 +74,54 @@ A logger that logs to a ZMQ socket.
 
     Methods
       log( log-message, :level, :domain )
-        
-The logging uses a publisher sopcket. All protocols send first
+
+The logging uses a publisher socket. All protocols send 5 frames
   1. prefix
   2. domain
   3. level
   4. format [ zmq | yaml | json | ... ]
   5. empty frame
 
-the next frames depend on the format. For zmq
+followed with frames that depend on the format.
+For zmq:
   6. content
   7. timestamp
   8. target
 
-for yaml/json
+for yaml/json:
   6. yaml/json formatted  
 
-To add your own formatter, add a role to the logger with a method 
-  method name-format(MsgBuilder :builder, :prefix, :timestamp, :level , :domain, :target, :content
+To add your own formatter, add a role to the logger with a method
+  method name-format(MsgBuilder :builder, :prefix, :timestamp, :level, :domain, :target, :content
                         --> MsgBuilder ) {
   ... your code here ...
   return $builder;
   }
-the builder should be returned unfinalized. 
+the builder should be returned unfinalized.
 then set the format to name:
   $logger.format('name');
+
+#### Log::ZMQ::catcher
+
+handles the logging backend, listening to zmq messages.
+
+The wrapper script log-catcher.pl can be invoked from the cli. to see options:
+    log-catcher.pl --help
+
+This is the body of the MAIN sub
+
+    my $c = $uri.defined ?? LogCatcher.instance(:$uri, :$debug )
+                          !! LogCatcher.instance( :$debug );
+    $c.set-level-filter( $level);
+    $c.set-domains-filter(| @domains) if @domains;
+    $c.run($prefix);
+
+current implemention print the received messaged to stdin. other backends can be added
+with the following methods:
+
+  add-zmq-handler( &f:(:$content, :$timestamp, :$level, :$domain, :$target) )
+  add-handler( Str $format,  &f:(Str:D $content) )
+
 
 ## LICENSE
 
