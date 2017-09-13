@@ -19,7 +19,7 @@ use Log::ZMQ::LogCatcher;
 use Log::ZMQ::Logger;
 
 my $prefix = 'test';
-my $logsys = Logging::instance( :prefix($prefix) );
+my $logsys = Logging::instance( $prefix );
 my $logger = $logsys.logger();
 my $logger2 = $logsys.logger();
 

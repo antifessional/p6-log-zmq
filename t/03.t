@@ -17,18 +17,17 @@ use Net::ZMQ::Socket:auth('github:gabrielash');
 
 use Log::ZMQ::Logger;
 
-
-my $l = Logging::instance( :prefix('example') ).logger;
+if 1 {
+my $l = Logging::instance( 'example' ).logger;
 $l.log('an important message');
-
-my $logger = Logging::instance('tcp://127.0.0.1:3301'
-                                , :prefix('example')
+} else {
+my $logger = Logging::instance('example' ,'tcp://127.0.0.1:3301'
                                 , :default-level( :warning )
                                 , :domain-list( < database engine front-end nativecall > )
                                 , :format( :json ))\
                               .logger;
 
 $logger.log( 'a very important message', :critical, :front-end );
-
+}
 
 done-testing;

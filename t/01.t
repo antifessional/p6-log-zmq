@@ -22,11 +22,11 @@ my $port = 4000;
 my $prefix = 'test';
 
 my $uri = $ip ~ ++$port;
-my $logsys = Logging::instance($uri
-                                , :prefix( $prefix )
+my $logsys = Logging::instance($prefix, $uri
                                 , :default-level('info')
                                 , :format('yaml')
-                                , :domain-list( 'dom1', 'dom2') );
+#                                , :domain-list( 'dom1', 'dom2') 
+                            );
 
 
 $logsys.suppress-level = 'critical';
@@ -43,9 +43,6 @@ my $logger = $logsys.logger;
 my $logger2 = $log2.logger;
 
 
-sleep 1; 
-
-
 my $cnt = 0;
 my $promise = start { 
 
@@ -59,15 +56,19 @@ my $promise = start {
           say "LOG SUBS\n { $m.perl}";
           $cnt++;
           last if $m ~~ / critical /;
-          sleep 1;
       }
     }
 
 
-sleep 1;
+if 0 {
 $logger.log('nice day', :dom1 );
 $logger2.log('you will never see this', :debug, :dom2 );
 $logger.log('another nice day', :critical, :dom1);
+} else {
+$logger.log('nice day');
+$logger2.log('you will never see this', :debug);
+$logger.log('another nice day', :critical);
+}
 
 
 await $promise;

@@ -50,25 +50,30 @@ class Logging is export {
   has Str $.prefix;
   has $.default-level;
   has $.format;
-  has Str @.domain-list;
+  has Str @.domain-array;
   has %.formatters = %FORMATTERS;
   has %.domains;
   has Str $.suppress-level is rw;
   has Channel $!queue;
   has Promise $!worker;
 
+ our proto sub instance(|)  {*}
 
-  our sub instance(Str $uri = $log-uri, :$default-level  is copy, :@domain-list is copy, :$prefix, :$format is copy)  {
-    return $instance if  $instance.defined  &&  ($uri eq ($log-uri | $instance.uri) ) ;
+  multi sub instance(Str $prefix, Str $uri = $log-uri
+                        , :$default-level  is copy, :@domain-list, :$format is copy)  {
+    die "Logging is already initialized. call instance wit empty argument list"
+      if $instance.defined;
 
-    @domain-list =  [ '--' ] unless @domain-list;
+    my @domain-array = @domain-list > 0 ?? @domain-list !! [ '--' ];
     $default-level //= 'info';
     $format //= 'yaml';
 
-    $instance.DESTROY if $instance.defined;
-    $instance = Logging.new(:$uri, :$default-level, :@domain-list, :$prefix, :$format);
-
+    $instance = Logging.new(:$uri, :$default-level, :@domain-array, :$prefix, :$format);
     return $instance;
+  }
+  multi sub instance()  {
+      return $instance if  $instance.defined;
+      die "You should bring flowers on the first date";
   }
 
   method set-suppress-level( *%h) {
@@ -83,10 +88,10 @@ class Logging is export {
   method TWEAK()  {
     die 'undefined format' unless %!formatters{ $!format}:exists or %!formatters{ $!format.key}:exists;
     $!format = $!format.key if $!format.isa(Pair);
-    %!domains = zip( @!domain-list.map( { die "domain $_ is not a String"
+    %!domains = zip( @!domain-array.map( { die "domain $_ is not a String"
                                           unless $_.isa(Str) ;$_ }  )
-                            , (1 for 0..^@!domain-list.elems)).flat
-                if @!domain-list;
+                            , (1 for 0..^@!domain-array.elems)).flat
+                if @!domain-array;
     $!suppress-level = 'trace';
 
     $!queue .= new;

@@ -20,12 +20,11 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
 ## Example Code
 
 #### A
-    my $l = Logging::instance( :prefix('example') ).logger;
+    my $l = Logging::instance( 'example' ).logger;
     $l.log 'an important message';
 
 #### B
-    my $logger = Logging::instance('tcp://78.78.1.7:3301')\
-                                , :prefix('example')\
+    my $logger = Logging::instance('example', 'tcp://78.78.1.7:3301')\
                                 , :default-level( :warning )\
                                 , :domain-list( < database engine front-end nativecall > )\
                                 , :format( :json ))\
@@ -43,8 +42,8 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
 
   The logging framework based on ZMQ. Usually a singleton summoned with
 
-    my $log-system = Logging::instance(:prefix('prefix')) ;
-    my $log-system = Logging.new( 'tcp://127.127.8.17:8022', :prefix('prefix') );
+    my $log-system = Logging::instance('prefix', ['tcp://127.127.8.17:8022', ... ]) ;
+        ;  only supply parameters the first time
 
     The default uri is 'tcp://127.0.0.1:3999'
 
