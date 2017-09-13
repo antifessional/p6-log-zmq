@@ -53,10 +53,10 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
                                 , :format( :json ))\
                           .logger;      
 
-  $logger.log( 'a very important message', :critical, :front-end );
+    $logger.log( 'a very important message', :critical, :front-end );
 
-  my $db-logger = Logging::instance.logger.domain( :database );
-  $db-logger.log( 'meh');
+    my $db-logger = Logging::instance.logger.domain( :database );
+    $db-logger.log( 'meh');
 
 #### C (the log catcher on the other side )
     # on the command line:
