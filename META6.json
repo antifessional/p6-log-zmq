@@ -6,7 +6,7 @@
   },
   "perl": "6.c",
   "resources": [
-
+    "scripts/log-catcher.pl"
   ],
   "build-depends": [
 
@@ -28,9 +28,10 @@
     "Log::ZMQ::Logger":         "lib/Log/ZMQ/Logger.pm",
     "Log::ZMQ::LogCatcher":     "lib/Log/ZMQ/LogCatcher.pm",
     "Log::ZMQ::Common":         "lib/Log/ZMQ/Common.pm"
+    
   },
   "production": false,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "meta-version": "0",
   "authors": ["Gabriel Ash", "github:gabrielash" ],
   "description": "Perl6 zmq-based logging"

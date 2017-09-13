@@ -9,6 +9,26 @@ Log::ZMQ is a Perl6 Logger that used zeromq to log over tcp/ip
 The looging is decoupled in a client server architecture. The client sends
 log meesages from the application to a LogCatcher listening on a tcp port.
 
+The backend uses a publisher-subscriber pattern, which is suitable for
+debugging asynchronous apps (by sheer luck, the purpose of writing it)
+but not much else. A more general framework would require changing the pattern.
+
+The frontend is designed to be spartan. Apart from the actual calls to the logging
+api, setup is minimal: A single application-wide call to Logging::instance with
+arguments, and an additional no-parameters call for each additinal place in the
+code that wants to hold its own logger. Enumerated arguments can be entered with
+colon notation, avoiding quotes, and it is possible to set defaults and log
+with no extra arguments. A global .set-supress-level( :level)  can turn all
+logging off. When silenced, log calls incur only the cost of argument checking (to
+reduce the risk of logging itself introducing errors.)
+
+The logging format is a choice of json, yaml and a raw format based on ZMQ frames,
+and it can be extended on both sides with user-provided functions. On the backend,
+there is currently no distinction between adding parsers and adding handlers. That
+is also also a current limitation. The built-in parsers-handelrs all write the logged
+message in multiline to STDOUT (again, useful for debugging, not so
+much for motinoring. )
+
 #### Status
 
 In development. This is my learning process of perl6 and ZMQ. I have a lot to learn so use with care.
@@ -19,11 +39,14 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
 
 ## Example Code
 
-#### A
+#### A (minimal)
     my $l = Logging::instance( 'example' ).logger;
-    $l.log 'an important message';
+    $l.log( 'an important message');
 
-#### B
+    my $l2 = Logging::instance.logger;
+    $l2.log( 'another important message');
+
+#### B ( more elaborate )
     my $logger = Logging::instance('example', 'tcp://78.78.1.7:3301')\
                                 , :default-level( :warning )\
                                 , :domain-list( < database engine front-end nativecall > )\
@@ -32,9 +55,13 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
 
   $logger.log( 'a very important message', :critical, :front-end );
 
-#### C
-    # on the command line
-    ./log-catcher.pl --uri 'tcp://78.78.1.7:3301' --prefix example --level debug database frontend
+  my $db-logger = Logging::instance.logger.domain( :database );
+  $db-logger.log( 'meh');
+
+#### C (the log catcher on the other side )
+    # on the command line:
+    ./log-catcher.pl --uri 'tcp://78.78.1.7:3301' --prefix example \
+                        	       --format json --level debug database front-end
 
 ## Documentation
 

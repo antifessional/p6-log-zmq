@@ -142,10 +142,23 @@ class Logger is export {
     $!domain = $!logging.domains.keys.first if $!logging.domains == 1;
   }
 
+  method domain(Pair:D $dom) {
+      die "Invalid domain, not in { self.domains.keys }" unless self.domains{ $dom.key }.exists;
+      $!domain = $dom.key;
+      return self;
+  }
+
+
   method !suppress($level) {
     return self.suppress-level.defined
             ?? %LEVELS{ self.suppress-level } <= %LEVELS{ $level  }
             !! False;
+  }
+
+  method log-die(Str $content, *%h)  {
+    say $content if $!debug;
+    self.log( $content, %h{} );
+    die "content";
   }
 
   method log(Str $content, *%h) { #say %h;say self.domains;

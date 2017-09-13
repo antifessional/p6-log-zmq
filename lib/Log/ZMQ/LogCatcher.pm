@@ -32,7 +32,7 @@ class LogCatcher is export {
 
   our sub instance(Str $uri = $log-uri, :$debug)  {
     return $instance if  $instance.defined  &&  $instance.uri eq $uri;
-    $instance.DESTROY if $instance.defined;
+    die "Catcher cannot be re-initialized" if $instance.defined;
     $instance = LogCatcher.new(:$uri, :$debug);
     return $instance;
   }

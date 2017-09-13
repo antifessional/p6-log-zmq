@@ -18,8 +18,10 @@ use Net::ZMQ::Socket:auth('github:gabrielash');
 use Log::ZMQ::Logger;
 
 if 1 {
+
 my $l = Logging::instance( 'example' ).logger;
-$l.log('an important message');
+$l.log( 'an important message');
+
 } else {
 my $logger = Logging::instance('example' ,'tcp://127.0.0.1:3301'
                                 , :default-level( :warning )
@@ -28,6 +30,10 @@ my $logger = Logging::instance('example' ,'tcp://127.0.0.1:3301'
                               .logger;
 
 $logger.log( 'a very important message', :critical, :front-end );
+
+my $db-logger = Logging::instance.logger.domain( :database );
+$db-logger.log( 'meh');
+
 }
 
 done-testing;
