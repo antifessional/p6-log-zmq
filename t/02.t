@@ -19,27 +19,20 @@ use Log::ZMQ::LogCatcher;
 use Log::ZMQ::Logger;
 
 my $prefix = 'test';
-my $logsys = Logging::logging;
-my $logger = $logsys.logger(:$prefix);
-my $logger2 = $logsys.logger(:prefix("--$prefix"));
-
-$logger.domains('dom1', 'dom2' );
-$logger.default-level(:info);
-$logger.target('log2');
-$logger.format(:zmq);
-$logger2.format(:yaml);
+my $logsys = Logging::instance( :prefix($prefix) );
+my $logger = $logsys.logger();
+my $logger2 = $logsys.logger();
 
 
-my $catcher = LogCatcher::instance(:debug);
+my $catcher = LogCatcher::instance(:!debug);
 ok $catcher.subscribe(''), "subscribed ok";
-#$catcher.set-domains-filter( 'dom1', 'none' );
 $catcher.set-level-filter :trace;
 
 sleep 1;
 
 $logger.log('nice day');
-$logger2.log('you will never see this', :critical );
-$logger.log('another nice day', :warning, :dom2);
+$logger2.log('a really really nice day', :critical );
+dies-ok { $logger.log('another nice day', :warning, :dom2) };
 
 sleep 1;
 pass "log catching not tested yet";

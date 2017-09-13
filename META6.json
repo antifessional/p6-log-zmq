@@ -25,8 +25,9 @@
     "Test::META"
   ],
   "provides": {
-    'Logger::ZMQ::Logger.pm',
-    'Logger::ZMQ::LogCatcher.pm'
+    "Log::ZMQ::Logger":         "lib/Log/ZMQ/Logger.pm",
+    "Log::ZMQ::LogCatcher":     "lib/Log/ZMQ/LogCatcher.pm",
+    "Log::ZMQ::Common":         "lib/Log/ZMQ/Common.pm"
   },
   "production": false,
   "version": "0.0.1",

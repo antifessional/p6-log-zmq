@@ -30,7 +30,7 @@ class LogCatcher is export {
   has @!zmq-handlers;
   has %!handlers;
 
-  our sub instance(Str $uri = $log-uri, :$debug) is export {
+  our sub instance(Str $uri = $log-uri, :$debug)  {
     return $instance if  $instance.defined  &&  $instance.uri eq $uri;
     $instance.DESTROY if $instance.defined;
     $instance = LogCatcher.new(:$uri, :$debug);

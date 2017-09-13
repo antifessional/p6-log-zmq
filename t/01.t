@@ -21,22 +21,28 @@ my $ip = "tcp://127.0.0.1:";
 my $port = 4000; 
 my $prefix = 'test';
 
-
-for ^3 { 
-
 my $uri = $ip ~ ++$port;
-my $logsys = Logging::logging($uri);
+my $logsys = Logging::instance($uri
+                                , :prefix( $prefix )
+                                , :default-level('info')
+                                , :format('yaml')
+                                , :domain-list( 'dom1', 'dom2') );
+
+
+$logsys.suppress-level = 'critical';
+$logsys.set-suppress-level :info;
+#dies-ok { $logsys.set-suppress-level( :info , :critical) } ;
+$logsys.unset-suppress-level;
+
+my $log2 = Logging::instance;
+
+
 sleep 1;
-my $logger = $logsys.logger(:$prefix);
-my $logger2 = $logsys.logger(:prefix("--$prefix"), :debug);
 
-ok $logger.defined , 'got logger test';
+my $logger = $logsys.logger;
+my $logger2 = $log2.logger;
 
-lives-ok { $logger.domains('dom1', 'dom2' ); } ,"set domains";
-lives-ok { $logger.default-level(:info); } ,"set level info";
-lives-ok { $logger.target('syslog'); } ,"set target syslog";
-lives-ok { $logger.format(:yaml);} ,"set format yaml";
-lives-ok { $logger2.format(:yaml);} ,"set format yaml";
+
 sleep 1; 
 
 
@@ -50,7 +56,7 @@ my $promise = start {
       say "log subscriber ready"; 
       loop {
           my $m = $s1.receive(:slurp) ; 
-#          say "LOG SUBS\n { $m.perl}";
+          say "LOG SUBS\n { $m.perl}";
           $cnt++;
           last if $m ~~ / critical /;
           sleep 1;
@@ -59,13 +65,13 @@ my $promise = start {
 
 
 sleep 1;
-$logger.log('nice day' );
-$logger2.log('you will never see this', :debug );
-$logger.log('another nice day', :critical);
+$logger.log('nice day', :dom1 );
+$logger2.log('you will never see this', :debug, :dom2 );
+$logger.log('another nice day', :critical, :dom1);
+
 
 await $promise;
-ok $cnt == 2, "correct messages seen";
+ok $cnt == 3, "correct messages seen";
 
-}
 
 done-testing;
