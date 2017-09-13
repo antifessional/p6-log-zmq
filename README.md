@@ -1,4 +1,4 @@
-# Net::ZMQ
+# Log::ZMQ
 
 ## SYNOPSIS
 
@@ -142,8 +142,8 @@ This is the body of the MAIN sub
 current implemention print the received messaged to stdin. other backends can be added
 with the following methods:
 
-  add-zmq-handler( &f:(:$content, :$timestamp, :$level, :$domain, :$target) )
-  add-handler( Str $format,  &f:(Str:D $content) )
+  * add-zmq-handler( &f:(:$content, :$timestamp, :$level, :$domain, :$target) )
+  * add-handler( Str $format,  &f:(Str:D $content) )
 
 
 ## LICENSE

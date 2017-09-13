@@ -1,5 +1,5 @@
 {
-  "name": "Logger::ZMQ",
+  "name": "Log::ZMQ",
   "source-url": "https://github.com/gabrielash/p6-logger-zmq.git",
   "support": {
     "source": null
@@ -15,7 +15,8 @@
   "auth": "github:gabrielash",
 
   "depends": [
-    "Net::ZMQ:auth(github:gabrielash)"
+    "Net::ZMQ:auth(github:gabrielash)",
+    "JSON::Tiny"
   ],
   "tags": [
 
