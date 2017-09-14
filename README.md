@@ -13,18 +13,17 @@ The backend uses a publisher-subscriber pattern, suitable for debugging asynchro
 apps (by sheer luck, the purpose of writing it) but not much else. A more general 
 framework would require changing the pattern.
 
-The front is designed to be spartan. Apart from log(), setup is minimal: 
-A single application-wide call to Logging::instance with arguments, plus no-parameters
-call for each additinal place in the code that wants to hold its own logger. 
-Enumerated arguments can be entered with colon notation and it is possible to set defaults and log
-with no extra arguments. A global .set-supress-level( :level)  can turn all
+Setup is minimal: A single application-wide call to Logging::instance with arguments, 
+plus no-parameters call for each additinal place in the code that wants to hold its own logger. 
+Enumerated arguments can be entered with colon notation and it is possible to set defaults 
+and log with no extra arguments. A global .set-supress-level( :level)  can turn all
 logging off. When suppressed, log calls incur only the cost of argument checking.
 
 Format is a choice of json, yaml and a raw format based on ZMQ frames. It can be 
 extended on both sides with user-provided functions. On the backend,
 there is currently no distinction between adding parsers and adding handlers. The 
 built-in parsers-handelrs all write the logged message in multiline to STDOUT 
-(useful for debugging, not so much for motinoring.)
+(useful for debugging, not so much for monitoring.)
 
 #### Status
 
