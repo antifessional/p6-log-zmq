@@ -2,7 +2,7 @@
 
 ## SYNOPSIS
 
-Log::ZMQ is a Perl6 Logger that used zeromq to log over tcp/ip
+Log::ZMQ is a Perl6 Logger using zeromq to log over tcp/ip
 
 ## Introduction
 
