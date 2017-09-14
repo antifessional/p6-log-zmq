@@ -1,6 +1,6 @@
 {
   "name": "Log::ZMQ",
-  "source-url": "https://github.com/gabrielash/p6-logger-zmq.git",
+  "source-url": "https://github.com/gabrielash/p6-logr-zmq.git",
   "support": {
     "source": null
   },
