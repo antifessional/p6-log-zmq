@@ -58,7 +58,7 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
 #### C (the log catcher on the other side )
     # on the command line:
     log-catcher.pl --uri 'tcp://78.78.1.7:3301' --prefix example \
-                        	       --format json --level debug database front-end
+                        	       --level debug database front-end
 
 ## Documentation
 
