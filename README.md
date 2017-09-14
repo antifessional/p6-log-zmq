@@ -136,7 +136,7 @@ This is the body of the MAIN sub
     $c.set-domains-filter(| @domains) if @domains;
     $c.run($prefix);
 
-current implemention print the received messaged to stdin. other backends can be added
+current implemention print the received messaged to stdout. other backends can be added
 with the following methods:
 
   * add-zmq-handler( &f:(:$content, :$timestamp, :$level, :$domain, :$target) )
