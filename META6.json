@@ -15,9 +15,7 @@
   "auth": "github:gabrielash",
 
   "depends": [
-    "Net::ZMQ::Context:auth(github:gabrielash)",
-     "Net::ZMQ::Socket:auth(github:gabrielash)",
-     "Net::ZMQ::Common:auth(github:gabrielash)",
+    "Net::ZMQ:auth('github:gabrielash')",
     "JSON::Tiny"
   ],
   "tags": [

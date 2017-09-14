@@ -1,5 +1,5 @@
 language: perl6
-sudo: false
+sudo: true
 perl6:
     - latest
 install:
