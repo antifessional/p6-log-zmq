@@ -6,28 +6,25 @@ Log::ZMQ is a Perl6 Logger that used zeromq to log over tcp/ip
 
 ## Introduction
 
-The looging is decoupled in a client server architecture. The client sends
-log meesages from the application to a LogCatcher listening on a tcp port.
+A decoupled remote logger. The client sends log meesages from the application to a
+LogCatcher listening on a tcp port.
 
-The backend uses a publisher-subscriber pattern, which is suitable for
-debugging asynchronous apps (by sheer luck, the purpose of writing it)
-but not much else. A more general framework would require changing the pattern.
+The backend uses a publisher-subscriber pattern, suitable for debugging asynchronous
+apps (by sheer luck, the purpose of writing it) but not much else. A more general 
+framework would require changing the pattern.
 
-The frontend is designed to be spartan. Apart from the actual calls to the logging
-api, setup is minimal: A single application-wide call to Logging::instance with
-arguments, and an additional no-parameters call for each additinal place in the
-code that wants to hold its own logger. Enumerated arguments can be entered with
-colon notation, avoiding quotes, and it is possible to set defaults and log
+The front is designed to be spartan. Apart from log(), setup is minimal: 
+A single application-wide call to Logging::instance with arguments, plus no-parameters
+call for each additinal place in the code that wants to hold its own logger. 
+Enumerated arguments can be entered with colon notation and it is possible to set defaults and log
 with no extra arguments. A global .set-supress-level( :level)  can turn all
-logging off. When silenced, log calls incur only the cost of argument checking (to
-reduce the risk of logging itself introducing errors.)
+logging off. When suppressed, log calls incur only the cost of argument checking.
 
-The logging format is a choice of json, yaml and a raw format based on ZMQ frames,
-and it can be extended on both sides with user-provided functions. On the backend,
-there is currently no distinction between adding parsers and adding handlers. That
-is also also a current limitation. The built-in parsers-handelrs all write the logged
-message in multiline to STDOUT (again, useful for debugging, not so
-much for motinoring. )
+Format is a choice of json, yaml and a raw format based on ZMQ frames. It can be 
+extended on both sides with user-provided functions. On the backend,
+there is currently no distinction between adding parsers and adding handlers. The 
+built-in parsers-handelrs all write the logged message in multiline to STDOUT 
+(useful for debugging, not so much for motinoring.)
 
 #### Status
 
@@ -60,7 +57,7 @@ In development. This is my learning process of perl6 and ZMQ. I have a lot to le
 
 #### C (the log catcher on the other side )
     # on the command line:
-    ./log-catcher.pl --uri 'tcp://78.78.1.7:3301' --prefix example \
+    log-catcher.pl --uri 'tcp://78.78.1.7:3301' --prefix example \
                         	       --format json --level debug database front-end
 
 ## Documentation
