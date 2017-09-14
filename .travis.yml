@@ -3,6 +3,5 @@ sudo: true
 perl6:
     - latest
 install:
-    - prove --exec perl6 -lr
     - rakudobrew build-zef
     - zef install .
