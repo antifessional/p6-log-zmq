@@ -6,7 +6,7 @@
   },
   "perl": "6.c",
   "resources": [
-    "scripts/log-catcher.pl"
+    "bin/log-catcher.pl"
   ],
   "build-depends": [
 
