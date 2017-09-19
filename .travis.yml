@@ -10,4 +10,3 @@ before_install:
 install:
     - rakudobrew build-zef
     - zef install .
-    - perl6 t/01.t 
