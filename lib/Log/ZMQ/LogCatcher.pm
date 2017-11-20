@@ -14,7 +14,7 @@ use Log::ZMQ::Common;
 class LogCatcher {...}
 
 my LogCatcher $instance;
-END { $instance.DESTROY if $instance.defined }
+END { say "ENDING..."; $instance.DESTROY if $instance.defined; say "LogCatcher Out"; }
 
 
 class LogCatcher is export {
@@ -49,10 +49,10 @@ class LogCatcher is export {
     $!ctx.shutdown;
   }
 
-  method !default-zmq-handler($content, $timestamp, $level, $domain, $target) {
+  method !default-zmq-handler($content, $timestamp, $level, $domain) {
     say qq:to/MSG_END/;
     ___________________________________________________________________
-    $level @ $timestamp (domain: $domain, target: $target)
+    $level @ $timestamp (domain: $domain)
     $content
     ___________________________________________________________________
     MSG_END
@@ -81,7 +81,7 @@ class LogCatcher is export {
     return self;
   }
 
-  method add-zmq-handler( &f:(:$content, :$timestamp, :$level, :$domain, :$target) ) {
+  method add-zmq-handler( &f:(:$content, :$timestamp, :$level, :$domain) ) {
       @!zmq-handlers.push(&f);
       return self;
   }
@@ -98,34 +98,33 @@ class LogCatcher is export {
     $begin++ while (($begin < $msg.elems) && ($msg[$begin] ne ''));
 
     if $!debug {
-      say "LogCatcher: DISPATCHING THIS:";
+      say "LogCatcher: DISPATCHING THIS: begin=$begin";
       say "$_) ---"  ~ $msg[$_] ~ "---" for ^$msg.elems;
     }
 
-    return if $begin == $msg.elems;
+   {say "begin=$begin" if $!debug;return} if $begin == $msg.elems;
     my $level = $msg[ $begin  + %PROTOCOL<level> ];
-    return if %LEVELS{$level} > $!level-max;
+    {say "level=$level"  if $!debug; return} if %LEVELS{$level} > $!level-max;
     my $domain = $msg[ $begin + %PROTOCOL<domain> ];
-    return if @!domains > 0 && ! @!domains.grep( { $_ eq $domain } );
+    {say "DOMAIN $domain is wrong" if $!debug; return} if @!domains > 0 && ! @!domains.grep( { $_ eq $domain } );
 
     my $format = $msg[$begin   + %PROTOCOL<format> ];
 
     given $format {
       when  'zmq' {
-        return unless $begin + 3 < $msg.elems;
+        {say "ZMQ: begin=$begin" if $!debug; return} unless $begin + 1 < $msg.elems;
         my $content =  $msg[ $begin + %PROTOCOL<content> ];
         my $timestamp = $msg[ $begin + %PROTOCOL<timestamp> ];
-        my $target  = $msg[ $begin + %PROTOCOL<target> ];
 
         if @!zmq-handlers.elems > 0 {
-          $_(:$content, :$timestamp, :$level, :$domain, :$target)
+          $_(:$content, :$timestamp, :$level, :$domain)
             for @!zmq-handlers;
         } else {
-          self!default-zmq-handler($content, $timestamp, $level, $domain, $target);
+          self!default-zmq-handler($content, $timestamp, $level, $domain);
         }
       }
       default {
-        return unless $begin + 1 < $msg.elems;
+        {say "DEFAULT: begin=$begin" if $!debug;return} unless $begin + 1 < $msg.elems;
         my $content =  $msg[ $begin + %PROTOCOL<content> ];
         if %!handlers{$format}:exists {
           my @handlers = %!handlers{$format};
