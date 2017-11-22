@@ -42,7 +42,7 @@ my %FORMATTERS = %(
 );
 
 my Logging $instance;
-END { $instance.DESTROY if $instance.defined; say "END" }
+END { $instance.DESTROY if $instance.defined; }
 
 class Logging is export {
 
