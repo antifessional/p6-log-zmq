@@ -2,8 +2,7 @@
 
 use v6;
 
-use lib '/home/docker/workspace/p6-log-zmq/lib';
-#use lib 'lib';
+use lib 'lib';
 
 use Log::ZMQ::LogCatcher;
 

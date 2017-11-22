@@ -14,7 +14,7 @@ use Log::ZMQ::Common;
 class LogCatcher {...}
 
 my LogCatcher $instance;
-END { say "ENDING..."; $instance.DESTROY if $instance.defined; say "LogCatcher Out"; }
+END { $instance.DESTROY if $instance.defined; }
 
 
 class LogCatcher is export {
@@ -102,17 +102,17 @@ class LogCatcher is export {
       say "$_) ---"  ~ $msg[$_] ~ "---" for ^$msg.elems;
     }
 
-   {say "begin=$begin" if $!debug;return} if $begin == $msg.elems;
+    return if $begin == $msg.elems;
     my $level = $msg[ $begin  + %PROTOCOL<level> ];
-    {say "level=$level"  if $!debug; return} if %LEVELS{$level} > $!level-max;
+    return  if %LEVELS{$level} > $!level-max;
     my $domain = $msg[ $begin + %PROTOCOL<domain> ];
-    {say "DOMAIN $domain is wrong" if $!debug; return} if @!domains > 0 && ! @!domains.grep( { $_ eq $domain } );
+    return if @!domains > 0 && ! @!domains.grep( { $_ eq $domain } );
 
     my $format = $msg[$begin   + %PROTOCOL<format> ];
 
     given $format {
       when  'zmq' {
-        {say "ZMQ: begin=$begin" if $!debug; return} unless $begin + 1 < $msg.elems;
+        return unless $begin + 1 < $msg.elems;
         my $content =  $msg[ $begin + %PROTOCOL<content> ];
         my $timestamp = $msg[ $begin + %PROTOCOL<timestamp> ];
 
@@ -124,7 +124,7 @@ class LogCatcher is export {
         }
       }
       default {
-        {say "DEFAULT: begin=$begin" if $!debug;return} unless $begin + 1 < $msg.elems;
+        return unless $begin + 1 < $msg.elems;
         my $content =  $msg[ $begin + %PROTOCOL<content> ];
         if %!handlers{$format}:exists {
           my @handlers = %!handlers{$format};
